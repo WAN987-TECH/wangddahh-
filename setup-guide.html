@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>邻选 · 部署使用指南</title>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px}
+body{
+  font-family:'Geist',-apple-system,BlinkMacSystemFont,sans-serif;
+  background:radial-gradient(circle at 50% 0,#fff 0,#eaf4ff 44%,#f8fbff 100%);
+  color:#101828;line-height:1.7;
+  -webkit-font-smoothing:antialiased;max-width:860px;margin:0 auto;padding:36px 24px 56px;
+}
+h1{font-size:2.25rem;font-weight:900;letter-spacing:0;margin-bottom:8px}
+h2{font-size:1.45rem;font-weight:850;letter-spacing:0;margin-top:48px;margin-bottom:12px;padding-top:32px;border-top:1px solid #d8e4f5;color:#064da8}
+h3{font-size:1.0625rem;font-weight:800;margin-top:28px;margin-bottom:8px}
+p{margin-bottom:14px;color:#667085;font-size:.9375rem}
+ul,ol{margin-bottom:14px;padding-left:20px;color:#667085;font-size:.9375rem}
+li{margin-bottom:6px}
+code{
+  background:#e8f2ff;padding:2px 6px;border-radius:6px;font-size:.875rem;
+  font-family:'SF Mono','Cascadia Code',monospace;color:#064da8;
+}
+pre{
+  background:#101828;color:#eaf4ff;padding:16px 20px;border-radius:14px;
+  overflow-x:auto;font-size:.8125rem;line-height:1.6;margin-bottom:16px;
+  font-family:'SF Mono','Cascadia Code',monospace;
+}
+.step{
+  background:rgba(255,255,255,.86);border:1px solid #d8e4f5;border-radius:18px;padding:24px;margin-bottom:20px;
+  box-shadow:0 12px 32px rgba(20,74,132,.07);
+}
+.step-num{
+  display:inline-flex;width:30px;height:30px;border-radius:50%;background:#064da8;color:#fff;
+  align-items:center;justify-content:center;font-size:.8125rem;font-weight:800;margin-bottom:8px;
+}
+.note{
+  background:#eef5ff;border:1px solid #b9d3f4;border-radius:12px;padding:14px 18px;margin:16px 0;
+  font-size:.875rem;color:#064da8;
+}
+.warn{
+  background:#fff1f1;border:1px solid #fecaca;border-radius:12px;padding:14px 18px;margin:16px 0;
+  font-size:.875rem;color:#b42318;
+}
+img{max-width:100%;border-radius:12px;border:1px solid #d8e4f5;margin:12px 0}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;background:rgba(255,255,255,.84);border:1px solid #d8e4f5;border-radius:18px;padding:14px 18px;box-shadow:0 12px 32px rgba(20,74,132,.07)}
+.brand{display:flex;align-items:center;gap:9px;color:#064da8;font-size:1.35rem;font-weight:900;text-decoration:none}
+.mark{width:26px;height:26px;border:3px solid currentColor;border-radius:9px 9px 9px 3px}
+.home-link{color:#064da8;text-decoration:none;font-size:.875rem;font-weight:800}
+.toc{background:rgba(255,255,255,.86);border:1px solid #d8e4f5;border-radius:18px;padding:20px;margin:24px 0;box-shadow:0 12px 32px rgba(20,74,132,.07)}
+.toc a{color:#064da8;text-decoration:none;font-size:.9375rem;font-weight:700}
+.toc a:hover{text-decoration:underline}
+.toc ol{margin-bottom:0}
+@media (max-width:600px){body{padding:24px 16px}h1{font-size:1.5rem}}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <a class="brand" href="landing.html"><span class="mark"></span>邻选</a>
+  <a class="home-link" href="landing.html">返回首页</a>
+</div>
+<h1>邻选 · 部署使用指南</h1>
+<p>按照以下步骤，大约需要 <strong>15 分钟</strong> 完成全部设置。全程免费，无需购买服务器或域名。</p>
+
+<div class="toc">
+  <strong style="font-size:.9375rem">目录</strong>
+  <ol style="margin-top:8px">
+    <li><a href="#s1">注册 Supabase 账号</a></li>
+    <li><a href="#s2">创建数据库项目</a></li>
+    <li><a href="#s3">初始化数据库表</a></li>
+    <li><a href="#s4">获取连接信息</a></li>
+    <li><a href="#s5">部署网页到 GitHub Pages</a></li>
+    <li><a href="#s6">首次使用配置</a></li>
+    <li><a href="#s7">日常使用流程</a></li>
+  </ol>
+</div>
+
+<!-- STEP 1 -->
+<h2 id="s1">第一步：注册 Supabase 账号</h2>
+<div class="step">
+  <div class="step-num">1</div>
+  <p>Supabase 是一个免费的开源数据库服务，我们用它来存储商品和订单数据。</p>
+  <ol>
+    <li>用浏览器打开 <code>supabase.com</code></li>
+    <li>点击右上角 <strong>"Start your project"</strong></li>
+    <li>选择 <strong>"Sign in with GitHub"</strong>（推荐，最方便）</li>
+    <li>如果没有 GitHub 账号，也可以用邮箱注册</li>
+  </ol>
+  <div class="note">
+    免费版提供 500MB 数据库空间和每月 5GB 流量，对于小区团购来说绰绰有余。
+  </div>
+</div>
+
+<!-- STEP 2 -->
+<h2 id="s2">第二步：创建数据库项目</h2>
+<div class="step">
+  <div class="step-num">2</div>
+  <ol>
+    <li>登录后点击 <strong>"New project"</strong></li>
+    <li>填写以下信息：
+      <ul>
+        <li><strong>Name</strong>：填 <code>groupbuy</code>（或任意名字）</li>
+        <li><strong>Database Password</strong>：设置一个数据库密码（建议用浏览器生成的随机密码，记下来备用）</li>
+        <li><strong>Region</strong>：选择 <strong>Northeast Asia (Tokyo)</strong> 或 <strong>Southeast Asia (Singapore)</strong>，离国内最近，速度最快</li>
+      </ul>
+    </li>
+    <li>点击 <strong>"Create new project"</strong>，等待 1-2 分钟让数据库创建完成</li>
+  </ol>
+</div>
+
+<!-- STEP 3 -->
+<h2 id="s3">第三步：初始化数据库表</h2>
+<div class="step">
+  <div class="step-num">3</div>
+  <p>在 Supabase 项目面板中，左侧菜单找到 <strong>SQL Editor</strong>，执行以下操作：</p>
+  <ol>
+    <li>点击 <strong>"New query"</strong></li>
+    <li>打开 <a href="supabase-schema.sql" target="_blank">supabase-schema.sql</a>，复制全部内容</li>
+    <li>粘贴到 SQL Editor 中</li>
+    <li>点击右下角绿色 <strong>"Run"</strong> 按钮</li>
+  </ol>
+  <div class="note">
+    执行成功后，你会看到 products（商品）、orders（订单）、rounds（轮次）、settings（设置）等表和自动创建的安全策略。这意味着数据库已经准备就绪。
+  </div>
+</div>
+
+<!-- STEP 4 -->
+<h2 id="s4">第四步：获取连接信息</h2>
+<div class="step">
+  <div class="step-num">4</div>
+  <p>在 Supabase 项目面板左侧菜单，找到 <strong>Settings &gt; API</strong>：</p>
+  <ol>
+    <li>复制 <strong>Project URL</strong>（格式如 <code>https://xxxxx.supabase.co</code>）</li>
+    <li>复制 <strong>anon public key</strong>（一长串以 <code>eyJ</code> 开头的文字）</li>
+    <li>把这两个信息保存到记事本备用，下一步用到</li>
+  </ol>
+  <div class="warn">
+    请使用 <strong>anon public key</strong>（公开密钥），不要使用 service_role key（私密密钥）。service_role key 会绕过所有安全策略，不应该在网页中使用。
+  </div>
+</div>
+
+<!-- STEP 5 -->
+<h2 id="s5">第五步：部署网页到 GitHub Pages</h2>
+<div class="step">
+  <div class="step-num">5</div>
+  <p>GitHub Pages 是免费、稳定的静态网页托管服务，无需实名认证。</p>
+  <ol>
+    <li>打开 <code>github.com</code>，登录你的 GitHub 账号</li>
+    <li>点击右上角 <strong>"+"</strong> → <strong>"New repository"</strong></li>
+    <li>Repository name 填 <code>Community-Group-Purchase-Project</code>（或任意英文名）</li>
+    <li>选 <strong>Public</strong>，勾选 <strong>"Add a README file"</strong>，点 <strong>"Create repository"</strong></li>
+    <li>进入仓库，点 <strong>"Add file"</strong> → <strong>"Upload files"</strong></li>
+    <li>把以下文件拖进去，点 <strong>"Commit changes"</strong>：
+      <ul>
+        <li><code>order.html</code> — 核心下单工具（团长 + 顾客）</li>
+        <li><code>landing.html</code> — 项目宣传页面</li>
+        <li><code>setup-guide.html</code> — 部署使用指南</li>
+        <li><code>admin-guide.html</code> — 团长操作手册</li>
+        <li><code>customer-guide.html</code> — 邻居下单指南</li>
+        <li><code>supabase-schema.sql</code> — 数据库脚本（备存）</li>
+      </ul>
+    </li>
+    <li>点仓库顶部 <strong>Settings</strong> → 左侧 <strong>Pages</strong></li>
+    <li>Source 选 <strong>"Deploy from a branch"</strong>，Branch 选 <code>main</code>，文件夹选 <code>/ (root)</code>，点 <strong>Save</strong></li>
+    <li>等 1-2 分钟，页面上出现绿色提示框显示网址：<code>https://你的用户名.github.io/仓库名/</code></li>
+  </ol>
+  <div class="note">
+    你的下单页面地址就是：<code>https://你的用户名.github.io/仓库名/order.html</code><br>
+    邻居扫码或点击这个链接就能进入下单页面。
+  </div>
+  <h3>备选方案：Cloudflare Pages</h3>
+  <p>如果 GitHub 访问慢，也可以用 Cloudflare Pages（同样免费）：</p>
+  <ul>
+    <li>打开 <code>dash.cloudflare.com</code>，注册后进入 Workers &amp; Pages → Create → Pages → Upload assets</li>
+    <li>把所有 HTML 文件拖进去 → Deploy，获得 <code>https://xxx.pages.dev</code> 网址</li>
+  </ul>
+</div>
+
+<!-- STEP 6 -->
+<h2 id="s6">第六步：首次使用配置</h2>
+<div class="step">
+  <div class="step-num">6</div>
+  <p>用浏览器打开你刚部署的网址，页面会显示「请选择你的小区」。</p>
+  <p><strong>方式一：如果项目已预设你的小区</strong>，直接点击小区名称按钮即可自动连接（无需手动填 URL 和 Key）。</p>
+  <p><strong>方式二：手动配置</strong>，点击「其他小区？手动配置」：</p>
+  <ol>
+    <li>在 <strong>Supabase URL</strong> 输入框粘贴第四步复制的 Project URL</li>
+    <li>在 <strong>Anon Key</strong> 输入框粘贴第四步复制的 anon key</li>
+    <li>点击 <strong>"手动连接"</strong></li>
+  </ol>
+  <p>连接成功后会自动进入顾客下单页面。</p>
+  <p>然后设置管理员密码：</p>
+  <ol>
+    <li>在网址后面加上 <code>#admin</code>（如 <code>https://你的用户名.github.io/仓库名/order.html#admin</code>），回车</li>
+    <li>这是首次进入，输入你想设置的管理密码和确认密码（密码需 ≥4 位）</li>
+    <li>进入后台后，在「轮次设置」标签页可以修改密码</li>
+  </ol>
+  <div class="warn">
+    请务必记住你的管理员密码。如果忘记了，需要在 Supabase 的 SQL Editor 中手动清空 admin_password 记录来重置。
+  </div>
+</div>
+
+<!-- STEP 7 -->
+<h2 id="s7">第七步：日常使用流程</h2>
+
+<h3>发起一次团购的完整流程</h3>
+
+<div class="step">
+  <p><strong>1. 进入后台</strong>：浏览器打开 <code>你的网址#admin</code>，输入管理密码。</p>
+</div>
+
+<div class="step">
+  <p><strong>2. 创建团购轮次</strong>：后台 →「轮次设置」→「创建新轮次」</p>
+  <ul>
+    <li>填写轮次名称（如「5 月第一周团购」）</li>
+    <li>可选设置下单截止时间（到期后顾客端自动关闭下单）</li>
+    <li>新轮次创建后状态为「策划中」，在添加商品后点击「开团」才会在顾客端显示</li>
+    <li>轮次有四种状态：<strong>策划中</strong>（不可下单）、<strong>进行中</strong>（顾客可下单）、<strong>已截止</strong>（到期自动关闭）、<strong>已停止</strong>（手动停止）</li>
+  </ul>
+  <div class="note">允许多个轮次同时「进行中」，不同轮次的商品和订单完全隔离。</div>
+</div>
+
+<div class="step">
+  <p><strong>3. 添加商品</strong>：后台 →「商品管理」→ 选择轮次 →「添加商品到「轮次名」」</p>
+  <ul>
+    <li><strong>商品名称</strong>（必填）— 如「烟台红富士苹果」</li>
+    <li><strong>商品图片</strong>（选填）— 支持 JPG/PNG/GIF/WebP，最大 5MB</li>
+    <li><strong>规格与价格</strong>（至少一个）— 如「500g / 15 元」「1kg / 28 元」</li>
+    <li><strong>整装拆分计算器</strong>：山姆等大包装商品，输入整装数量和总价，设置每份大小，自动计算份数和单价</li>
+    <li><strong>商品标签</strong>（选填）— 如「蛋糕」「冷藏」，用空格分隔</li>
+    <li><strong>库存数量</strong>（选填）— 不填则不限库存，卖完自动显示「已售罄」</li>
+  </ul>
+  <div class="note">商品保存后默认上架，可在列表中点「下架」暂时隐藏。</div>
+</div>
+
+<div class="step">
+  <p><strong>4. 开团 + 生成二维码</strong>：</p>
+  <ul>
+    <li>商品添加完毕后，到「轮次设置」点击该轮次的「开团」按钮</li>
+    <li>进入「下单二维码」Tab，二维码自动生成</li>
+    <li>长按二维码图片 → 保存到手机相册 → 发到业主微信群</li>
+    <li>也可点击「复制下单链接」直接分享</li>
+  </ul>
+</div>
+
+<div class="step">
+  <p><strong>5. 查看订单</strong>：后台 →「订单汇总」</p>
+  <ul>
+    <li>顶部下拉选择轮次，按人分组显示订单明细和金额</li>
+    <li>底部「采购清单」按商品汇总采购数量，支持一键复制</li>
+    <li>「导出 Excel」下载含订单明细和商品汇总两个 sheet 的表格</li>
+    <li>对需要取消的订单可点击「砍单」按钮，填写原因后顾客端会显示</li>
+  </ul>
+</div>
+
+<div class="step">
+  <p><strong>6. 收款</strong>：后台 →「收款清单」</p>
+  <ul>
+    <li>设置本轮费用（运费、包装费等），系统自动按人数均摊</li>
+    <li>底部「收款清单」列出每人应付金额（商品金额 + 均摊费用）</li>
+    <li>「一键复制收款清单」后粘贴到微信群收款</li>
+  </ul>
+</div>
+
+<h3>顾客如何使用</h3>
+
+<div class="step">
+  <ol>
+    <li>在微信群里长按二维码 → 识别图中二维码</li>
+    <li>打开页面后，看到当前在售商品，可搜索、按标签筛选</li>
+    <li>点击商品选择规格和数量（支持拆分商品，按份购买）</li>
+    <li>选好后点击底部「去下单」</li>
+    <li>填写群昵称（必填）+ 备注（选填）</li>
+    <li>提交订单，完成</li>
+    <li>如需修改，点击页面上方「查/改订单」，输入昵称查询</li>
+    <li>订单卡片会显示所属轮次和状态，被团长砍单会显示红色砍单原因</li>
+  </ol>
+</div>
+
+<h3>其他实用功能</h3>
+
+<div class="step">
+  <ul>
+    <li><strong>商品导入导出</strong>：「商品管理」→「导出商品」下载 Excel，「导入商品」可批量恢复</li>
+    <li><strong>多轮次同时运行</strong>：允许多个团购轮次同时「进行中」，适合不同品类分开团（如水果团 + 日用品团）</li>
+    <li><strong>修改站点标题</strong>：「轮次设置」→ 修改「顾客端标题」，顾客端顶部会动态更新</li>
+    <li><strong>修改管理密码</strong>：「轮次设置」→ 管理密码区域，输入新密码保存</li>
+  </ul>
+</div>
+
+<h3>忘记密码</h3>
+
+<div class="step">
+  <p>在 Supabase → SQL Editor 执行：</p>
+  <pre>UPDATE settings SET value = '' WHERE key = 'admin_password';</pre>
+  <p>然后重新打开 <code>#admin</code> 设置新密码。</p>
+</div>
+
+<div class="note" style="margin-top:32px">
+  <strong>温馨提示：</strong>Supabase 和 GitHub Pages 的免费额度对于一个小区的团购来说完全足够。如果未来你的团购规模扩大，Supabase 的付费方案也只要 $25/月起步。
+</div>
+</body>
+</html>
