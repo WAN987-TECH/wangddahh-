@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>邻选 - 社区团购下单工具</title>
+<meta name="description" content="告别群接龙。团长设置商品生成二维码，邻居扫码下单，订单自动汇总，一键复制收款清单。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='5' y='8' width='18' height='16' rx='6' fill='none' stroke='%23064da8' stroke-width='3'/%3E%3Cpath d='M22 13h3a4 4 0 0 1 0 8h-3' fill='none' stroke='%23064da8' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&family=Geist:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<style>
+:root{
+  --blue:#064da8;
+  --blue-2:#0b63c7;
+  --blue-3:#003b86;
+  --ink:#101828;
+  --muted:#5f6f89;
+  --soft:#f1f7ff;
+  --soft-2:#e8f2ff;
+  --line:#d8e4f5;
+  --card:#fff;
+  --red:#ef2f2f;
+  --shadow:0 24px 80px rgba(16,66,134,.14);
+  --shadow-soft:0 16px 48px rgba(20,74,132,.09);
+  --radius:22px;
+  --sans:Geist,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --serif:"Playfair Display",Georgia,serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{font-family:var(--sans);background:#f8fbff;color:var(--ink);line-height:1.65;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+.shell{width:min(1180px,calc(100vw - 32px));margin:18px auto 36px;background:linear-gradient(145deg,#fff 0%,#eff6ff 48%,#fff 100%);border:1px solid var(--line);border-radius:26px;overflow:hidden;box-shadow:0 30px 90px rgba(20,74,132,.12)}
+.nav{height:78px;display:flex;align-items:center;justify-content:space-between;padding:0 58px;position:sticky;top:0;z-index:20;background:rgba(255,255,255,.78);backdrop-filter:blur(18px);border-bottom:1px solid rgba(216,228,245,.72)}
+.brand{display:flex;align-items:center;gap:10px;color:var(--blue);font-size:28px;font-weight:900;letter-spacing:0}
+.mark{width:32px;height:32px;border:3px solid var(--blue);border-radius:12px 12px 12px 4px;position:relative;flex:0 0 auto}
+.mark:after{content:"";position:absolute;width:12px;height:12px;border:3px solid var(--blue);border-left:0;border-bottom:0;right:-8px;top:7px;border-radius:4px}
+.links{display:flex;align-items:center;gap:34px;font-size:14px;font-weight:700}
+.links a:first-child{color:var(--blue);border-bottom:2px solid var(--blue);padding-bottom:10px}
+.nav-actions{display:flex;align-items:center;gap:14px;font-size:14px;font-weight:800}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;border-radius:13px;font-weight:850;transition:transform .18s ease,box-shadow .18s ease,background .18s ease;border:1px solid transparent;white-space:nowrap}
+.btn:active{transform:scale(.98)}
+.btn-primary{background:linear-gradient(135deg,var(--blue),var(--blue-2));color:#fff;box-shadow:0 12px 24px rgba(6,77,168,.24)}
+.btn-primary:hover{box-shadow:0 16px 32px rgba(6,77,168,.28)}
+.btn-outline{background:rgba(255,255,255,.86);color:var(--blue);border-color:#bcd0eb;box-shadow:0 10px 28px rgba(20,74,132,.08)}
+.btn-sm{height:42px;padding:0 18px}
+.btn-lg{height:72px;padding:0 24px;min-width:206px;justify-content:flex-start}
+.btn-ico{width:34px;height:34px;border:2px solid currentColor;border-radius:12px;position:relative}
+.btn-ico:after{content:"";position:absolute;width:10px;height:10px;border:2px solid currentColor;border-left:0;border-bottom:0;right:-6px;top:8px;border-radius:3px}
+.btn-text strong{display:block;font-size:17px;line-height:1.2}.btn-text small{display:block;font-size:12px;font-weight:700;opacity:.76;margin-top:4px}
+.hero{display:grid;grid-template-columns:1fr 1fr;gap:24px;padding:44px 58px 58px;position:relative;min-height:640px}
+.hero-copy{padding-top:72px;position:relative;z-index:2}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;height:34px;border-radius:999px;background:#eaf3ff;color:var(--blue);padding:0 13px;font-size:13px;font-weight:850;margin-bottom:18px}
+h1{font-family:var(--serif);font-size:72px;line-height:1.04;margin:0 0 28px;letter-spacing:0;font-weight:800}
+h1 span{color:var(--blue)}
+.hero-copy p{font-size:17px;line-height:2;color:#26364f;margin:0 0 34px}
+.cta-row{display:flex;gap:18px;flex-wrap:wrap;margin-bottom:58px}
+.trust{display:flex;gap:16px;background:rgba(255,255,255,.86);border:1px solid var(--line);border-radius:14px;padding:12px 20px;width:max-content;box-shadow:0 10px 28px rgba(20,74,132,.08)}
+.trust span{display:flex;align-items:center;gap:7px;color:#234466;font-size:13px;font-weight:700}
+.trust span:before{content:"";width:18px;height:18px;border-radius:6px;border:2px solid var(--blue)}
+.dessert{position:absolute;left:-78px;bottom:-8px;width:575px;height:326px;background:url("assets/dessert-hero.png") left bottom/690px auto no-repeat;overflow:hidden;pointer-events:none;z-index:1;opacity:.92;-webkit-mask-image:linear-gradient(90deg,#000 0%,#000 62%,rgba(0,0,0,.72) 78%,transparent 100%),linear-gradient(0deg,#000 0%,#000 72%,rgba(0,0,0,.56) 88%,transparent 100%);-webkit-mask-composite:source-in;mask-image:linear-gradient(90deg,#000 0%,#000 62%,rgba(0,0,0,.72) 78%,transparent 100%),linear-gradient(0deg,#000 0%,#000 72%,rgba(0,0,0,.56) 88%,transparent 100%);mask-composite:intersect}
+.dessert:after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 20% 82%,rgba(255,255,255,0) 0 34%,rgba(248,251,255,.38) 66%,rgba(248,251,255,.98) 100%),linear-gradient(90deg,rgba(248,251,255,0) 0%,rgba(248,251,255,0) 54%,rgba(248,251,255,.86) 92%,rgba(248,251,255,1) 100%),linear-gradient(0deg,rgba(248,251,255,0) 0%,rgba(248,251,255,.18) 65%,rgba(248,251,255,.98) 100%)}
+.visual{position:relative;display:flex;align-items:flex-start;justify-content:flex-start;padding:10px 0 0 0}
+.phone{width:318px;min-height:632px;background:#fff;border:7px solid #111827;border-radius:48px;padding:22px 20px 20px;box-shadow:0 24px 70px rgba(15,23,42,.28);position:relative;z-index:3}
+.island{width:112px;height:28px;background:#030712;border-radius:999px;position:absolute;top:10px;left:50%;transform:translateX(-50%)}
+.status{display:flex;justify-content:space-between;font-size:13px;font-weight:900;margin-bottom:34px}
+.phone h3{font-size:19px;margin:0 0 4px}
+.round{font-size:13px;font-weight:800;margin-bottom:10px}
+.deadline{height:34px;background:#fff0da;border-radius:9px;color:#a05a12;font-size:12px;display:flex;align-items:center;padding:0 12px;margin-bottom:12px}
+.product{display:grid;grid-template-columns:54px 1fr 78px;gap:9px;align-items:center;padding:11px 0;border-bottom:1px solid #e8eef7}
+.thumb{width:54px;height:54px;border-radius:10px;background:#fff url("assets/dessert-swiss-roll-cutout.png") center/contain no-repeat}
+.thumb.b{background:#fff url("assets/dessert-basque-cutout.png") center/contain no-repeat}.thumb.c{background:#fff url("assets/dessert-cupcakes-cutout.png") center/contain no-repeat}.thumb.d{background:#fff url("assets/dessert-macarons-cutout.png") center/contain no-repeat}.thumb.e{background:#fff url("assets/dessert-tiramisu-cutout.png") center/contain no-repeat}
+.pname{font-size:12px;font-weight:800}.spec{font-size:11px;color:var(--muted);margin-top:2px}.price{font-size:13px;color:var(--red);font-weight:900;margin-top:4px}
+.qty{height:34px;border:1px solid #d8e2f0;border-radius:8px;display:flex;align-items:center;justify-content:space-around;font-weight:900}
+.submit{height:44px;background:linear-gradient(135deg,var(--blue),#075fcb);border-radius:9px;color:#fff;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900;margin-top:18px}
+.qr-float{position:absolute;right:-12px;top:420px;width:110px;height:auto;background:rgba(255,255,255,.94);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:14px;z-index:2}
+.hand{font-family:KaiTi,serif;font-size:13px;line-height:1.5;color:#21314d;text-align:center;transform:rotate(-5deg)}
+.qr{width:70px;height:70px;border:6px solid #fff;box-shadow:0 0 0 1px #d8e2f0;border-radius:8px;box-sizing:content-box}
+.qr canvas,.qr img{width:70px!important;height:70px!important;border-radius:4px;display:block}
+.section{margin:0 38px 22px;background:rgba(255,255,255,.78);border:1px solid var(--line);border-radius:22px;padding:34px;box-shadow:0 18px 50px rgba(20,74,132,.06)}
+.section-title{text-align:center;font-family:var(--serif);font-size:30px;font-weight:800;margin-bottom:22px}
+.section-title .vs{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:999px;background:var(--blue);color:#fff;font-family:var(--sans);font-size:16px;margin:0 14px}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.panel{background:linear-gradient(145deg,#fff,#f2f7ff);border-radius:18px;padding:24px;min-height:230px;position:relative;border:1px solid #e6effb;overflow:hidden}
+.panel h3{font-size:22px;margin:0 0 18px;color:#0b3f87}.panel.old h3{color:#111827}
+.bullet{display:flex;align-items:center;gap:10px;margin:14px 0;color:#243551;font-size:15px}
+.x,.ok{width:22px;height:22px;border-radius:999px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:13px;flex:0 0 auto}
+.x{border:1px solid #9ca3af;color:#475569}.ok{background:var(--blue);color:#fff}
+.mini-card{position:absolute;right:26px;bottom:26px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px;width:205px;box-shadow:0 16px 34px rgba(20,74,132,.15)}
+.money{font-size:28px;font-weight:900;margin:12px 0;color:#111827}
+.relay-sheet{position:absolute;right:28px;bottom:25px;width:218px;height:142px;border:1px solid #d8e4f5;border-radius:13px;background:linear-gradient(135deg,rgba(255,255,255,.96),rgba(239,246,255,.92));box-shadow:0 14px 30px rgba(20,74,132,.12);transform:rotate(-3deg);padding:15px}
+.relay-sheet:before{content:"群接龙统计表";display:block;font-size:10px;color:#8192aa;margin-bottom:8px}
+.relay-sheet span{display:grid;grid-template-columns:28px 1fr 38px;gap:8px;height:auto;margin:6px 0}
+.relay-sheet span:before,.relay-sheet span:after,.relay-sheet b{content:"";display:block;height:9px;border-radius:999px;background:#dbe7f6}
+.relay-sheet i{position:absolute;right:-16px;bottom:22px;background:#9aa9bd;color:#fff;border-radius:999px;padding:4px 8px;font-style:normal;font-size:10px;box-shadow:0 8px 18px rgba(20,74,132,.14)}
+.scribble{position:absolute;right:198px;bottom:42px;width:68px;height:50px;border:2px solid #b8c9df;border-right:0;border-top:0;transform:skew(-16deg) rotate(-6deg);opacity:.8}
+.steps{display:grid;grid-template-columns:repeat(7,auto);gap:16px;align-items:center;justify-content:center}
+.step{min-height:100px;border:1px solid var(--line);border-radius:16px;background:#fff;display:flex;align-items:center;gap:14px;padding:18px 20px}
+.step-ico{width:42px;height:42px;border:2px solid var(--blue);border-radius:12px;flex:0 0 auto}.step strong{color:var(--blue);display:block;font-size:16px}.step small{color:var(--muted);font-size:12px}
+.arrow{color:#8bb0de;font-size:28px;font-weight:800}
+.roles{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.role{min-height:320px;background:linear-gradient(145deg,#fff,#f3f8ff);border:1px solid var(--line);border-radius:20px;padding:34px;position:relative;overflow:hidden;display:grid;grid-template-columns:minmax(250px,1fr) 185px;gap:14px;align-items:center}
+.role h3{font-size:27px;color:var(--blue);margin:0 0 12px;font-family:var(--serif)}
+.role p{color:var(--muted);margin:0 0 18px}.role ul{display:grid;gap:10px;list-style:none;margin-bottom:24px}.role li{color:#344767;font-size:15px}.role li:before{content:"";display:inline-block;width:8px;height:8px;background:var(--blue);border-radius:50%;margin-right:9px}
+.role-copy{position:relative;z-index:2;min-width:0}
+.mock-laptop{position:relative;justify-self:end;width:185px;height:120px;background:#111827;border-radius:9px 9px 4px 4px;padding:9px;box-shadow:0 16px 38px rgba(15,23,42,.18)}.mock-laptop:after{content:"";position:absolute;left:-13px;right:-13px;bottom:-9px;height:12px;background:linear-gradient(90deg,#cbd5e1,#f8fafc,#cbd5e1);border-radius:0 0 18px 18px}.screen{background:#fff;height:92px;border-radius:4px;padding:8px;display:grid;grid-template-columns:46px 1fr;gap:8px;overflow:hidden}.screen:before{content:"";display:block;border-radius:4px;background:linear-gradient(#eff6ff,#e6f1ff)}.screen div{height:7px;background:#e5edf7;border-radius:999px;margin-bottom:6px;max-width:100%}.screen div:first-child{background:#bbf7d0;width:42px}.screen div:nth-child(2){height:15px;background:#111827;width:55px}.screen div:nth-child(3){width:104px}.screen div:nth-child(4){width:94px}.screen div:nth-child(5){width:110px}
+.mock-phone{position:relative;justify-self:end;width:132px;height:242px;border:5px solid #111827;border-radius:25px;background:#fff;padding:14px 8px;box-shadow:0 16px 34px rgba(15,23,42,.16)}.mock-phone .product{grid-template-columns:30px 1fr;padding:6px 0}.mock-phone .thumb{width:30px;height:30px;background-size:220px auto}.mock-phone .pname{font-size:11px}.mock-phone .price{font-size:12px}.mock-phone .submit{height:28px;margin-top:10px}
+.bottom-cta{margin:0 38px 38px;background:linear-gradient(135deg,#064da8,#003b86);border-radius:18px;padding:34px 48px;color:#fff;display:grid;grid-template-columns:1fr auto auto auto;gap:20px;align-items:center}
+.bottom-cta h2{font-size:32px;margin:0 0 8px;font-family:var(--serif)}.bottom-cta p{margin:0;color:#dbeafe}.bottom-cta .btn-outline{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.38);color:#fff}
+.bottom-qr{width:88px;height:88px;border-radius:12px;background:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 24px rgba(0,0,0,.12)}.bottom-qr .qr{width:70px;height:70px;border-width:5px;border-radius:6px;box-sizing:content-box}
+.footer{padding:34px 38px 44px;text-align:center;color:#7890ad;font-size:13px}.footer-links{display:flex;justify-content:center;gap:54px;margin-bottom:28px;color:#355173;font-weight:700}
+@media(max-width:980px){.shell{width:calc(100vw - 16px);margin:8px}.nav{padding:0 24px}.links{display:none}.hero{grid-template-columns:1fr;padding:24px;min-height:auto}.hero-copy{padding-top:24px}h1{font-size:48px}.trust{width:auto;flex-wrap:wrap}.compare,.roles,.bottom-cta{grid-template-columns:1fr}.steps{grid-template-columns:1fr}.arrow{display:none}.qr-float{display:none}.dessert{display:none}.section,.bottom-cta{margin-left:18px;margin-right:18px}.phone{width:100%;max-width:330px}.visual{justify-content:flex-start;padding-left:0}.relay-sheet{display:none}.bottom-qr{display:none}}
+@media(max-width:560px){.nav-actions a:first-child{display:none}.brand{font-size:22px}.hero{padding:20px 16px}.section{padding:22px}.section-title{font-size:23px}.compare .mini-card{position:static;margin-top:18px}.steps{grid-template-columns:1fr}.role{grid-template-columns:1fr;min-height:260px;padding:24px}.mock-laptop,.mock-phone{justify-self:center;margin-top:8px;width:100%;max-width:270px}.mock-phone{max-width:210px}.cta-row{flex-direction:column}.btn-lg{width:100%;justify-content:flex-start}.bottom-cta{padding:26px 22px}.footer-links{flex-direction:column;gap:12px}}
+</style>
+</head>
+<body>
+<main class="shell">
+  <nav class="nav">
+    <a href="#" class="brand"><span class="mark"></span>邻选</a>
+    <div class="links">
+      <a href="#">首页</a><a href="#how">怎么用</a><a href="#roles">谁在用</a><a href="#features">功能介绍</a><a href="#help">帮助中心</a>
+    </div>
+    <div class="nav-actions">
+      <a href="order.html#admin">登录</a>
+      <a class="btn btn-primary btn-sm" href="order.html#admin">开始使用</a>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <div class="dessert"></div>
+    <div class="hero-copy">
+      <div class="eyebrow">社区团购 · 微信扫码下单</div>
+      <h1>告别接龙，<br><span>一码下单</span></h1>
+      <p>设置商品，生成二维码，发到群里。<br>邻居扫码下单，订单自动汇总。<br>一键计算付款总额，省时又省心。</p>
+      <div class="cta-row">
+        <a class="btn btn-primary btn-lg" href="order.html#admin"><span class="btn-ico"></span><span class="btn-text"><strong>团长开始使用</strong><small>创建团购，生成二维码</small></span></a>
+        <a class="btn btn-outline btn-lg" href="order.html"><span class="btn-ico"></span><span class="btn-text"><strong>邻居扫码下单</strong><small>扫描二维码，快速下单</small></span></a>
+      </div>
+      <div class="trust"><span>简单易用</span><span>订单自动汇总</span><span>一键算总额</span><span>安全可靠</span></div>
+    </div>
+
+    <div class="visual">
+      <div class="phone">
+        <div class="island"></div>
+        <div class="status"><span>9:41</span><span>5G 100%</span></div>
+        <h3><span style="color:var(--blue)">邻选</span> 团购下单</h3>
+        <div class="round">美味甜品团购群 <span style="background:#dcfce7;color:#15803d;padding:3px 8px;border-radius:6px;font-size:11px">团长：小郭</span></div>
+        <div class="deadline">截至 05月26日 20:00 前</div>
+        <div class="product"><div class="thumb"></div><div><div class="pname">瑞士卷（原味）</div><div class="spec">350g/盒</div><div class="price">¥29.90 /盒</div></div><div class="qty">− 2 +</div></div>
+        <div class="product"><div class="thumb b"></div><div><div class="pname">巴斯克芝士蛋糕</div><div class="spec">1.1kg/盒</div><div class="price">¥69.90 /盒</div></div><div class="qty">− 1 +</div></div>
+        <div class="product"><div class="thumb c"></div><div><div class="pname">缤纷纸杯蛋糕</div><div class="spec">6只装</div><div class="price">¥39.90 /盒</div></div><div class="qty">− 1 +</div></div>
+        <div class="product"><div class="thumb d"></div><div><div class="pname">马卡龙礼盒</div><div class="spec">36枚</div><div class="price">¥129.00 /盒</div></div><div class="qty">− 1 +</div></div>
+        <div class="product"><div class="thumb e"></div><div><div class="pname">提拉米苏</div><div class="spec">800g/盒</div><div class="price">¥59.90 /盒</div></div><div class="qty">− 1 +</div></div>
+        <div class="submit">提交订单</div>
+      </div>
+      <div class="qr-float"><div class="hand">扫一扫<br>下单更方便</div><div class="qr"></div></div>
+    </div>
+  </section>
+
+  <section class="section" id="features">
+    <div class="section-title">传统接龙 <span class="vs">VS</span> 邻选</div>
+    <div class="compare">
+      <div class="panel old">
+        <h3>传统接龙</h3>
+        <div class="bullet"><span class="x">×</span>多人接龙，信息混乱</div>
+        <div class="bullet"><span class="x">×</span>人工统计，容易出错</div>
+        <div class="bullet"><span class="x">×</span>反复核对，耗时耗力</div>
+        <div class="bullet"><span class="x">×</span>计算总额，繁琐易错</div>
+        <div class="relay-sheet"><span></span><span></span><span></span><span></span><i>...</i></div>
+      </div>
+      <div class="panel">
+        <h3>使用邻选</h3>
+        <div class="bullet"><span class="ok">✓</span>二维码下单，简单高效</div>
+        <div class="bullet"><span class="ok">✓</span>订单自动汇总，清晰准确</div>
+        <div class="bullet"><span class="ok">✓</span>实时统计，省时省心</div>
+        <div class="bullet"><span class="ok">✓</span>一键计算总额，轻松收款</div>
+        <div class="mini-card"><div style="color:var(--muted);font-size:13px">应付总额</div><div class="money">¥2,345.60</div><div class="submit" style="height:40px;margin:0">一键计算总额</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="how">
+    <div class="section-title">四步完成团购，轻松又高效</div>
+    <div class="steps">
+      <div class="step"><div class="step-ico"></div><div><strong>设置商品</strong><small>添加商品、价格和库存</small></div></div>
+      <div class="arrow">→</div>
+      <div class="step"><div class="step-ico"></div><div><strong>生成二维码</strong><small>一键生成，分享更快</small></div></div>
+      <div class="arrow">→</div>
+      <div class="step"><div class="step-ico"></div><div><strong>邻居扫码下单</strong><small>选择商品，提交订单</small></div></div>
+      <div class="arrow">→</div>
+      <div class="step"><div class="step-ico"></div><div><strong>自动汇总结算</strong><small>订单汇总，一键总额</small></div></div>
+    </div>
+  </section>
+
+  <section class="section roles" id="roles">
+    <div class="role">
+      <div class="role-copy">
+        <h3>团长后台</h3>
+        <p>高效管理，一目了然。</p>
+        <ul>
+          <li>商品管理，灵活设置规格和库存</li>
+          <li>订单实时汇总，数据清晰</li>
+          <li>一键复制收款清单，方便发群收款</li>
+          <li>导出订单，方便备货对账</li>
+        </ul>
+        <a class="btn btn-primary btn-sm" href="order.html#admin">进入团长后台</a>
+      </div>
+      <div class="mock-laptop"><div class="screen"><div></div><div></div><div></div><div></div><div></div></div></div>
+    </div>
+    <div class="role">
+      <div class="role-copy">
+        <h3>邻居下单端</h3>
+        <p>简单便捷，扫码即可下单。</p>
+        <ul>
+          <li>商品清晰，价格透明</li>
+          <li>操作简单，快速下单</li>
+          <li>截止前可查询和修改</li>
+          <li>提交成功后安心等待团长通知</li>
+        </ul>
+        <a class="btn btn-outline btn-sm" href="order.html">打开下单端</a>
+      </div>
+      <div class="mock-phone">
+        <div class="product"><div class="thumb"></div><div><div class="pname">瑞士卷</div><div class="price">¥29.90</div></div></div>
+        <div class="product"><div class="thumb b"></div><div><div class="pname">巴斯克</div><div class="price">¥69.90</div></div></div>
+        <div class="product"><div class="thumb c"></div><div><div class="pname">纸杯蛋糕</div><div class="price">¥39.90</div></div></div>
+        <div class="submit"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="bottom-cta">
+    <div><h2>让团购更简单，让生活更美好</h2><p>邻选，轻量级社区团购工具，专为微信团购场景打造。</p></div>
+    <a class="btn btn-outline btn-lg" href="order.html#admin"><span class="btn-ico"></span><span class="btn-text"><strong>团长开始使用</strong><small>创建团购，生成二维码</small></span></a>
+    <a class="btn btn-outline btn-lg" href="order.html"><span class="btn-ico"></span><span class="btn-text"><strong>邻居扫码下单</strong><small>扫描二维码，快速下单</small></span></a>
+    <div class="bottom-qr"><div class="qr"></div></div>
+  </section>
+
+  <footer class="footer" id="help">
+    <div class="footer-links"><span>微信生态内使用</span><span>数据安全可靠</span><span>专注社区团购场景</span><a href="setup-guide.html">部署使用指南</a></div>
+    <p>© 2026 邻选。社区团购下单工具。</p>
+  </footer>
+</main>
+<script>
+// 生成真实下单二维码，指向 order.html
+(function(){
+  var url = window.location.origin + window.location.pathname.replace(/landing\.html$/, 'order.html');
+  if (typeof QRCode !== 'undefined') {
+    document.querySelectorAll('.qr').forEach(function(el) {
+      new QRCode(el, { text: url, width: 70, height: 70, colorDark: '#1c1917', colorLight: '#ffffff' });
+    });
+  }
+})();
+</script>
+</body>
+</html>
